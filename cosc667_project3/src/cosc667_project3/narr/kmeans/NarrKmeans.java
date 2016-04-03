@@ -56,8 +56,8 @@ public class NarrKmeans {
 				this.records.add(record);
 			}
 
-			inFile.close();
 		}
+		inFile.close();
 	}
 
 	public void setParameters(int numberClusters, int seed) {
@@ -96,7 +96,7 @@ public class NarrKmeans {
 
 		int[] clusterSizes = new int[this.numberClusters];
 
-		for (int i = 0; i < this.numberRecords; i++) {
+		for (int i = 0; i < this.numberClusters; i++) {
 			clusterSizes[i] = 0;
 		}
 
