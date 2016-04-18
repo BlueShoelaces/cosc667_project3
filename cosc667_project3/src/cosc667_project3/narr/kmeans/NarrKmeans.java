@@ -3,6 +3,7 @@ package cosc667_project3.narr.kmeans;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
@@ -114,6 +115,20 @@ public class NarrKmeans {
 
 			this.centroids.set(i, average);
 		}
+
+		this.displayCentroids();
+	}
+
+	private void displayCentroids() {
+		NarrRecord centroid;
+
+		PrintStream outputStream = System.out;
+		for (int centroidNumber = 0; centroidNumber < this.numberClusters; centroidNumber++) {
+			outputStream.print("Centroid " + (centroidNumber + 1) + " = ");
+			centroid = this.centroids.get(centroidNumber);
+			printRecordAttributes(centroid, outputStream);
+		}
+		outputStream.println();
 	}
 
 	private NarrRecord scale(NarrRecord record, double scalar) {
@@ -181,6 +196,8 @@ public class NarrKmeans {
 
 			this.centroids.add(this.records.get(index));
 		}
+
+		this.displayCentroids();
 	}
 
 	private void initializeClusters() {
@@ -191,18 +208,38 @@ public class NarrKmeans {
 		}
 	}
 
-	public void display(String outputFile) throws IOException {
+	public void printToFileWithRecordsGroupedByCluster(String outputFile) throws IOException {
+
 		PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
+		NarrRecord centroid;
 
-		for (int i = 0; i < this.numberRecords; i++) {
-			for (int j = 0; j < this.numberAttributes; j++) {
-				outFile.print(this.records.get(i).attributes[j] + " ");
+		for (int clusterNumber = 0; clusterNumber < this.numberClusters; clusterNumber++) {
+			centroid = this.centroids.get(clusterNumber);
+			outFile.print("Cluster " + (clusterNumber + 1) + ": centroid = ");
+			printRecordAttributes(centroid, outFile);
+
+			for (int recordNumber = 0; recordNumber < this.numberRecords; recordNumber++) {
+				if (this.clusters[recordNumber] == clusterNumber) {
+					printRecordAttributes(centroid, outFile);
+				}
 			}
-
-			outFile.println(this.clusters[i] + 1);
+			outFile.println();
 		}
 
 		outFile.close();
 	}
 
+	private void printRecordAttributes(NarrRecord record, PrintStream outputStream) {
+		for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
+			outputStream.printf("%.2f ", record.attributes[attributeNumber]);
+		}
+		outputStream.println();
+	}
+
+	private void printRecordAttributes(NarrRecord record, PrintWriter outputWriter) {
+		for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
+			outputWriter.printf("%.2f ", record.attributes[attributeNumber]);
+		}
+		outputWriter.println();
+	}
 }
