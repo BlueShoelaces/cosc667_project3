@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
+
 public class NarrKmeans {
 
 	private class NarrRecord {
@@ -27,6 +28,8 @@ public class NarrKmeans {
 	private ArrayList<NarrRecord> centroids;
 	private int[] clusters;
 	private Random random;
+	private int dimensionOfOriginalImage;
+	private int dimensionOfCompressedImage;
 
 	public NarrKmeans() {
 		this.numberRecords = 0;
@@ -207,6 +210,36 @@ public class NarrKmeans {
 			this.clusters[i] = -1;
 		}
 	}
+	
+	public void decompress(String inputFile, String outputFile) throws IOException {
+		Scanner inFile = new Scanner(new File(inputFile));
+		PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
+		
+		NarrRecord[] centroids = new NarrRecord[this.numberClusters];
+		
+		for (int centroidNumber = 0; centroidNumber < this.numberClusters; centroidNumber++) {
+			double[] attributes = new double[this.numberAttributes];
+
+			for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
+				attributes[attributeNumber] = inFile.nextDouble();
+			}
+			
+			centroids[centroidNumber] = new NarrRecord(attributes);
+		}
+		inFile.nextLine();
+		for (int yDimension = 0; yDimension < dimensionOfOriginalImage; yDimension++) {
+			for (int xDimension = 0; xDimension < dimensionOfCompressedImage; xDimension++) {
+				int centroidName = inFile.nextInt();
+				for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
+					outFile.print((int)centroids[centroidName].attributes[attributeNumber] + " ");
+				}				
+			}
+			outFile.println();
+		}
+		
+		inFile.close();
+		outFile.close();
+	}
 
 	public void printToFileWithRecordsGroupedByCluster(String outputFile) throws IOException {
 
@@ -220,12 +253,39 @@ public class NarrKmeans {
 
 			for (int recordNumber = 0; recordNumber < this.numberRecords; recordNumber++) {
 				if (this.clusters[recordNumber] == clusterNumber) {
-					printRecordAttributes(centroid, outFile);
+					printRecordAttributes(this.records.get(recordNumber), outFile);
 				}
 			}
 			outFile.println();
 		}
 
+		outFile.close();
+	}
+	
+	public void printToFileWithRoundedCentroidsAndEncodedPixels(String outputFile, int dimension) throws IOException {
+		
+		PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
+		this.dimensionOfOriginalImage = dimension;
+		this.dimensionOfCompressedImage = (int)(dimension / 2.0);
+		
+		for (int clusterNumber = 0; clusterNumber < this.numberClusters; clusterNumber++) {
+			NarrRecord centroid = this.centroids.get(clusterNumber);
+			
+			for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
+					outFile.print((int)Math.round(centroid.attributes[attributeNumber]) + " ");
+			}
+			outFile.println();
+		}
+		outFile.println();
+		
+		int recordIndex = 0;
+		for (int yDimension = 0; yDimension < this.dimensionOfOriginalImage; yDimension++) {
+			for (int xDimension = 0; xDimension < dimensionOfCompressedImage; xDimension++) {
+				outFile.printf("%d ", this.clusters[recordIndex++]);
+			}
+			outFile.println();
+		}
+		
 		outFile.close();
 	}
 
