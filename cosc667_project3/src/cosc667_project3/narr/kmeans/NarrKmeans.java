@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
-
 public class NarrKmeans {
 
 	private class NarrRecord {
@@ -210,33 +209,33 @@ public class NarrKmeans {
 			this.clusters[i] = -1;
 		}
 	}
-	
+
 	public void decompress(String inputFile, String outputFile) throws IOException {
 		Scanner inFile = new Scanner(new File(inputFile));
 		PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
-		
+
 		NarrRecord[] centroids = new NarrRecord[this.numberClusters];
-		
+
 		for (int centroidNumber = 0; centroidNumber < this.numberClusters; centroidNumber++) {
 			double[] attributes = new double[this.numberAttributes];
 
 			for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
 				attributes[attributeNumber] = inFile.nextDouble();
 			}
-			
+
 			centroids[centroidNumber] = new NarrRecord(attributes);
 		}
 		inFile.nextLine();
-		for (int yDimension = 0; yDimension < dimensionOfOriginalImage; yDimension++) {
-			for (int xDimension = 0; xDimension < dimensionOfCompressedImage; xDimension++) {
+		for (int yDimension = 0; yDimension < this.dimensionOfOriginalImage; yDimension++) {
+			for (int xDimension = 0; xDimension < this.dimensionOfCompressedImage; xDimension++) {
 				int centroidName = inFile.nextInt();
 				for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
-					outFile.print((int)centroids[centroidName].attributes[attributeNumber] + " ");
-				}				
+					outFile.print((int) centroids[centroidName].attributes[attributeNumber] + " ");
+				}
 			}
 			outFile.println();
 		}
-		
+
 		inFile.close();
 		outFile.close();
 	}
@@ -261,31 +260,41 @@ public class NarrKmeans {
 
 		outFile.close();
 	}
-	
-	public void printToFileWithRoundedCentroidsAndEncodedPixels(String outputFile, int dimension) throws IOException {
-		
+
+	public void printToFileWithRoundedCentroidsAndEncodedPixels(String outputFile, int dimension)
+			throws IOException {
+
 		PrintWriter outFile = new PrintWriter(new FileWriter(outputFile));
 		this.dimensionOfOriginalImage = dimension;
-		this.dimensionOfCompressedImage = (int)(dimension / 2.0);
-		
+		this.dimensionOfCompressedImage = (int) (dimension / 2.0);
+
 		for (int clusterNumber = 0; clusterNumber < this.numberClusters; clusterNumber++) {
 			NarrRecord centroid = this.centroids.get(clusterNumber);
-			
+
 			for (int attributeNumber = 0; attributeNumber < this.numberAttributes; attributeNumber++) {
-					outFile.print((int)Math.round(centroid.attributes[attributeNumber]) + " ");
+				int roundedCentroidAttributeValue = (int) Math
+						.round(centroid.attributes[attributeNumber]);
+				outFile.print(roundedCentroidAttributeValue + " ");
 			}
 			outFile.println();
 		}
 		outFile.println();
-		
+
 		int recordIndex = 0;
 		for (int yDimension = 0; yDimension < this.dimensionOfOriginalImage; yDimension++) {
-			for (int xDimension = 0; xDimension < dimensionOfCompressedImage; xDimension++) {
+			for (int xDimension = 0; xDimension < this.dimensionOfCompressedImage; xDimension++) {
 				outFile.printf("%d ", this.clusters[recordIndex++]);
 			}
 			outFile.println();
 		}
-		
+
+		// for (int recordNumber = 0; recordNumber < this.numberRecords;
+		// recordNumber++) {
+		// int clusterName = this.clusters[recordNumber];
+		// outFile.printf("%d", clusterName);
+		// outFile.println();
+		// }
+
 		outFile.close();
 	}
 
